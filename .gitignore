@@ -1,0 +1,9 @@
+*data*
+*.nc
+**/*.fit
+**/*.fits
+**/*.FIT*
+*.mp4
+plots
+**/filelist.txt
+# zwoasi533_darkbias*.nc

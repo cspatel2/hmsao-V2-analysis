@@ -1,0 +1,30 @@
+[submodule "l1a_converter"]
+	path = l1a_converter
+	url = https://github.com/cspatel2/l1a_converter
+[submodule "l1b_converter"]
+	path = l1b_converter
+	url = https://github.com/cspatel2/l1b_converter
+[submodule "l1c_converter"]
+	path = l1c_converter
+	url = https://github.com/cspatel2/l1c_converter
+[submodule "l1b_converter_old"]
+	path = l1b_converter_old
+	url = https://github.com/cspatel2/hmsao-spectralfit
+[submodule "l2_converter"]
+	path = l2_converter
+	url = https://github.com/cspatel2/l2_converter
+[submodule "glow"]
+	path = glow
+	url = https://github.com/cspatel2/hmsao_glow_retrieval
+[submodule "calib_lamp_curve"]
+	path = calib_lamp_curve
+	url = https://github.com/cspatel2/calibration_curve
+[submodule "exploration"]
+	path = exploration
+	url = https://github.com/cspatel2/hmsao-exploredata
+[submodule "postship_calib_202508"]
+	path = postship_calib_202508
+	url = https://github.com/cspatel2/hmsao_photometric_calib
+[submodule "l1bc_calibration"]
+	path = l1bc_calibration
+	url = git@github.com:cspatel2/hmsao_l1bc_calibration_converter.git

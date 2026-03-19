@@ -1,0 +1,98 @@
+
+[instr_info]
+
+    [instr_info.input]
+    img_path = 'config_requirements/instr_info/20250320033309.166.fits'
+    
+    [instr_info.output]
+    dir = 'config_requirements'
+
+[common] 
+#these are common values that are inputs to multiple converters. If any tables below have the value '**', then that value will be picked up from the table
+slitsizeum = 100
+sourcename = 'Gamma Scientific RS-12D Series Calibration Light Source'
+dates = ['']
+windows = ['6563']
+model = 'config_requirements/model_HMSAO-V1.json'
+obs_location = [42.64981361744372,-71.31681056737486, 40]
+
+
+
+[l1a_converter]
+rootdir = '~/locsststor/raw/hmsao-v1'
+destdir = '~/locsststor/proc/hmsao-v1'
+dest_prefix = 'hmsao-v1'
+overwrite = 'False'
+windows = '**' #take from common or change
+dates = ['20250315']
+darkdir = '~/locsststor/proc/hmsao-v1_calibration_slit_100um_20251013'
+slitsizeum = '**' #take from common
+chunksize = 100
+readnoise = 6
+
+[line_profile_gen]
+rootdir = '~/locsststor/proc/hmsao-v1/l1a'
+date = '20250315'
+bounds_csv = 'config_requirements/l1b_converter/bounds.csv'
+win = ['']
+destdir = 'config_requirements/l1b_converter'
+
+[l1b_converter]
+rootdir = '~/locsststor/proc/hmsao-v1/l1a'
+destdir = '~/locsststor/proc/hmsao-v1/l1b'
+windows = '**' #take from common or change
+dates = '**' #take from common or change
+line_profile_dir = 'config_requirements/l1b_converter'
+
+
+# calibration config
+#step1-fits2ds
+[calib_fits2ds]
+rootdir = '~/locsststor/raw/hmsao-v1_calibration_slit_100um_20251013'
+destdir = '~/locsststor/proc/hmsao-v1_calibration_slit_100um_20251013'
+overwrite = 'False'
+pos_identifier = ['pos']
+
+#step2-ds_1la_converter
+[calib_ds_l1a_converter]
+rootdir = '~/locsststor/proc/hmsao-v1_calibration_slit_100um_20251013/l0'
+destdir = '~/locsststor/proc/hmsao-v1_calibration_slit_100um_20251013/l1a'
+
+#step3-l1b_converter
+[calib_l1b_converter]
+rootdir = '~/locsststor/proc/hmsao-v1_calibration_slit_100um_20251013/l1a'
+destdir = ''
+windows = [''] # do it for all windows
+line_profile_dir = 'config_requirements/l1b_converter'
+
+#step4-gen-calibmap
+[calib_gen_calibmap]
+rootdir = '~/locsststor/proc/hmsao-v1_calibration_slit_100um_20251013/l1b'
+destdir = ['~/locsststor/proc/hmsao-v1_calibration_slit_100um_20251013/calibmap' ,'config_requirements/calibmap']
+windows = [''] # do it for all windows 
+calib_params_csv = 'config_requirements/l1bc_calib/calib_params_hmsao_slit_100um.csv'
+calib_curve_ds_path = 'config_requirements/l1bc_calib/D300 HL2372 2025-09-11.nc'
+pos_identifier = ['pos']
+
+
+#L1C
+[l1c_converter]
+rootdir = '~/locsststor/proc/hmsao-v1/l1b'
+destdir = ''
+windows = ['']
+calibmap_dir = 'config_requirements/calibmap'
+photon = 'True'
+
+#L2
+[l2_converter]
+rootdir = '~/locsststor/proc/hmsao-v1/l1c'
+destdir = '~/locsststor/proc/hmsao-v1/l2'
+dest_prefix = 'hmsao-v1'
+overwrite = 'False'
+zabinsize = 0.25
+windows = ['**']
+dates = ['**']
+obs_location = '**' #take from common or change
+soldir = ''
+save = 'True'
+
