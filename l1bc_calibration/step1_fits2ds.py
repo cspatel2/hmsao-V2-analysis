@@ -236,8 +236,8 @@ def main(config : Fits2DsConfig):
             pos = []
             pdirs = list(config.rootdir.glob(f'*{s}_*'))
             for pd in pdirs:
-                id = pd.stem
-                pos.append(id.split('_')[-1].strip('in'))
+                id = pd.name
+                pos.append(float(id.split('_')[-1].strip('in')))
                 all_fns = list(pd.glob('*.fit*')) #try getting files in current dir
                 if len(all_fns)>0: # found files in current dir
                     pass #go onto the next step

@@ -36,12 +36,12 @@ def load_config():
     return config, ROOT
 #%%
 RUN_CALIB_L0 = False
-RUN_L1A = True
+RUN_L1A = False
 RUN_LINEPROF_GEN = False
 RUN_CALIB = False
 RUN_L1B = False
 RUN_L1C = False
-RUN_L2 = False
+RUN_L2 = True
 CONFIG,ROOT = load_config() #load config dict and root path
 
 #%%
@@ -82,10 +82,10 @@ if RUN_L1A:
     #get config for L1A conversion
     subdict = CONFIG['l1a_converter']
 
-    if subdict['windows'] == '**': windows = WINDOWS
+    if subdict['windows'] == '**' or subdict['windows'] == ['**']: windows = WINDOWS
     else: windows = subdict['windows']
 
-    if subdict['dates'] == '**': dates = DATES
+    if subdict['dates'] == '**' or subdict['dates'] == ['**']: dates = DATES
     else: dates = subdict['dates']
 
     #set up data class for L1A conversion
@@ -113,9 +113,6 @@ if RUN_LINEPROF_GEN:
     subdict = CONFIG['line_profile_gen'] 
     destdir = ROOT / subdict['destdir']
 
-    if subdict['windows'] == '**': windows = WINDOWS
-    else: windows = subdict['windows']
-
     #set up data class for line profile generation
     line_config = LineProfileConfig(
         rootdir=subdict['rootdir'],
@@ -134,30 +131,30 @@ if RUN_LINEPROF_GEN:
 if RUN_CALIB:
     print("Running calibration ########################################")
 
-    print("Running calibration - step 2 ########################################")
-    subdict = CONFIG['calib_ds_l1a_converter']
-    ds2l1a_config = CalibL1AConfig(
-        rootdir=subdict['rootdir'],
-        destdir=subdict['destdir'],
-        model=MODEL
-    )
-    calib_l1a_main(ds2l1a_config)
+    # print("Running calibration - step 2 ########################################")
+    # subdict = CONFIG['calib_ds_l1a_converter']
+    # ds2l1a_config = CalibL1AConfig(
+    #     rootdir=subdict['rootdir'],
+    #     destdir=subdict['destdir'],
+    #     model=MODEL
+    # )
+    # calib_l1a_main(ds2l1a_config)
 
     print("Running calibration - step 3 ########################################")
     subdict = CONFIG['calib_l1b_converter']
-    if subdict['windows'] == '**': windows = WINDOWS
+    if subdict['windows'] == '**' or subdict['windows'] == ['**']: windows = WINDOWS
     else: windows = subdict['windows']
     ds2l1b_config = CalibL1BConfig(
         rootdir=subdict['rootdir'],
         destdir=subdict['destdir'],
         windows=windows,
-        lineprofile_dir=subdict['lineprofile_dir']
+        lineprofile_dir=subdict['line_profile_dir']
     )
     calib_l1b_main(ds2l1b_config)
 
     print("Running calibration - step 4 ########################################")
     subdict = CONFIG['calib_gen_calibmap']
-    if subdict['windows'] == '**': windows = WINDOWS
+    if subdict['windows'] == '**' or subdict['windows'] == ['**']: windows = WINDOWS
     else: windows = subdict['windows']
     calibmap_config = CalibGenConfig(
         rootdir=subdict['rootdir'],
@@ -174,9 +171,9 @@ if RUN_CALIB:
 if RUN_L1B:
     print("Running L1B conversion ########################################")
     subdict = CONFIG['l1b_converter']
-    if subdict['windows'] == '**': windows = WINDOWS
+    if subdict['windows'] == '**' or subdict['windows'] == ['**']: windows = WINDOWS
     else: windows = subdict['windows']
-    if subdict['dates'] == '**': dates = DATES
+    if subdict['dates'] == '**' or subdict['dates'] == ['**']: dates = DATES
     else: dates = subdict['dates']
     l1b_config = L1BConfig(
         rootdir=subdict['rootdir'],
@@ -191,7 +188,7 @@ if RUN_L1B:
 if RUN_L1C:
     print("Running L1C conversion ########################################")
     subdict = CONFIG['l1c_converter']
-    if subdict['windows'] == '**': windows = WINDOWS
+    if subdict['windows'] == '**' or subdict['windows'] == ['**']: windows = WINDOWS
     else: windows = subdict['windows']
     l1c_config = L1CConfig(
         rootdir=subdict['rootdir'],

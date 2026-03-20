@@ -100,6 +100,7 @@ def convert_l0_to_l1a(fn: Path, destdir: Path, predictor: MisCurveRemover, windo
     )
     # conver to gamma beta coordinates
     nds = convert_dims_xy_gammabeta(nds, predictor)  # convert to gamma beta
+    print(f'Converted image sizes: {nds.sizes}')
 
     # for each window, straighten the image(each data variable in nds) and convert gamma to zenith angle
     for w in windows:
@@ -108,15 +109,18 @@ def convert_l0_to_l1a(fn: Path, destdir: Path, predictor: MisCurveRemover, windo
             kda = nds[data_var]  # data array
             dim = list(kda.dims)
             dim = np.unique([d for d in list(kda.dims) if d not in ['beta', 'gamma']])
+
             outds = None
             if len(dim) == 1:
                 imglist = []
                 for d in kda[dim[0]].data:
                     kds = kda.sel({dim[0]: d}).to_dataset(name=data_var)
+                    print(f'kds sizes: {kds.sizes}')
                     k = kds.map(predictor.straighten_image,win_name=w, coord='Slit')
                     k = convert_gamma_to_zenithangle(k[data_var])
                     imglist.append(k)
                     del k
+                print(len(imglist))
                 # outds = xr.concat(imglist, dim= xr.DataArray(np.array(kda[dim[0]].data, dtype= float), dims= dim[0]))
                 outds = xr.concat(imglist, dim=kda[dim[0]])
                 del imglist

@@ -27,4 +27,4 @@
 	url = https://github.com/cspatel2/hmsao_photometric_calib
 [submodule "l1bc_calibration"]
 	path = l1bc_calibration
-	url = git@github.com:cspatel2/hmsao_l1bc_calibration_converter.git
+	url = https://github.com/cspatel2/hmsao_l1bc_calibration_converter
