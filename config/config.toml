@@ -14,7 +14,7 @@ sourcename = 'Gamma Scientific RS-12D Series Calibration Light Source'
 dates = ['20251116, 20251117, 20251118']
 windows = ['6300', '5577']
 model = 'config_requirements/model_HMSAO-V2.json'
-obs_location = [42.64981361744372,-71.31681056737486, 40]
+obs_location = [67.84,20.41, 420]
 
 
 # calibration config
@@ -89,7 +89,7 @@ dest_prefix = 'hmsao-v2'
 overwrite = 'True'
 zabinsize = 0.25
 windows = ['**']
-dates = ['**']
+dates = ['']
 obs_location = '**' #take from common or change
 soldir = ''
 save = 'True'
