@@ -12,7 +12,7 @@
 	url = https://github.com/cspatel2/hmsao-spectralfit
 [submodule "l2_converter"]
 	path = l2_converter
-	url = https://github.com/cspatel2/l2_converter
+	url = https://github.com/cspatel2/hmsao-l2-converter.git
 [submodule "glow"]
 	path = glow
 	url = https://github.com/cspatel2/hmsao_glow_retrieval
