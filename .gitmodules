@@ -10,10 +10,6 @@
 	path = l1c_converter
 	url = https://github.com/cspatel2/hmsao_l1c_converter
 	branch = main
-[submodule "l1b_converter_old"]
-	path = l1b_converter_old
-	url = https://github.com/cspatel2/hmsao-spectralfit
-	branch = main
 [submodule "l2_converter"]
 	path = l2_converter
 	url = https://github.com/cspatel2/hmsao-l2-converter.git
