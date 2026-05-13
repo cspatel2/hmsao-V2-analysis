@@ -1,30 +1,39 @@
 [submodule "l1a_converter"]
 	path = l1a_converter
-	url = https://github.com/cspatel2/l1a_converter
+	url = https://github.com/cspatel2/hmsao-l1a-converter
+	branch = main
 [submodule "l1b_converter"]
 	path = l1b_converter
-	url = https://github.com/cspatel2/l1b_converter
+	url = https://github.com/cspatel2/hmsao_l1b_converter
+	branch = main
 [submodule "l1c_converter"]
 	path = l1c_converter
-	url = https://github.com/cspatel2/l1c_converter
+	url = https://github.com/cspatel2/hmsao_l1c_converter
+	branch = main
 [submodule "l1b_converter_old"]
 	path = l1b_converter_old
 	url = https://github.com/cspatel2/hmsao-spectralfit
+	branch = main
 [submodule "l2_converter"]
 	path = l2_converter
 	url = https://github.com/cspatel2/hmsao-l2-converter.git
+	branch = main
 [submodule "glow"]
 	path = glow
 	url = https://github.com/cspatel2/hmsao_glow_retrieval
+	branch = main
 [submodule "calib_lamp_curve"]
 	path = calib_lamp_curve
 	url = https://github.com/cspatel2/calibration_curve
+	branch = main
 [submodule "exploration"]
 	path = exploration
 	url = https://github.com/cspatel2/hmsao-exploredata
+	branch = main
 [submodule "postship_calib_202508"]
 	path = postship_calib_202508
 	url = https://github.com/cspatel2/hmsao_photometric_calib
+	branch = main
 [submodule "l1bc_calibration"]
 	path = l1bc_calibration
-	url = https://github.com/cspatel2/hmsao_l1bc_calibration_converter
+	url = git@github.com:cspatel2/hmsao_l1bc_calibration_converter.git

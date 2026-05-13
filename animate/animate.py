@@ -91,10 +91,10 @@ def read_raw_img(fn:Path|str, pixdict:dict|None = None):
 # %%
 # 
 
-
 print('collecting data and sorting...')
 # get data and sort 
-datdir = Path('~/locsststor/raw/hmsao-v2/20251116').expanduser()
+year,month,day = 2025, 11, 20
+datdir = Path(f'~/locsststor/raw/hmsao-v2/{year}{month}{day}').expanduser()
 fns = list(datdir.glob('*.fit*'))
 fns.sort(key = get_time_from_fn)
 
@@ -103,12 +103,12 @@ times = np.asarray(times)
 
 print('Getting data for Valid time window...')
 # define relevant time window limits
-window_start = datetime(2025, 11, 16, 20, 00, tzinfo=timezone.utc)
-window_end = window_start + timedelta(hours = 4)
-start = window_start - timedelta(minutes=10)
-end = window_end + timedelta(minutes=10)
+window_start = datetime(year, month, day, 1, 40, tzinfo=timezone.utc)
+window_end = window_start + timedelta(minutes = 10)
+# start = window_start - timedelta(minutes=10)
+# end = window_end + timedelta(minutes=10)
 #pick out data from valid time window
-valid = (times > start.timestamp()) & (times < end.timestamp())
+valid = (times > window_start.timestamp()) & (times < window_end.timestamp())
 fn = np.asarray(fns, dtype=object)
 fn = fn[valid]
 print(len(fn))
@@ -124,25 +124,34 @@ pixdict = {
 } 
 
 #%%
-TEST = False
+TEST = True
+fontcolor = 'white'
+minmax = True
+cmap = 'gray'
 if TEST:
-    data,exp,tstamp = read_raw_img(fns[0], pixdict)
+    idx = 1
+    data,exp,tstamp = read_raw_img(fns[idx], pixdict)
+    date = f'{year}{month}{day}'
+    time = datetime.fromtimestamp(tstamp, timezone.utc).strftime('%H%M%S')
     fig, ax = plt.subplots(1, 1, figsize=(6.4, 4.8), dpi=300, tight_layout=True, squeeze=True)
-    img = ax.imshow(data, cmap = 'Greys')
+    if minmax:
+        img = ax.imshow(data, cmap = cmap, vmin = np.nanpercentile(data, 1), vmax = np.nanpercentile(data, 99))
+    else:
+        img = ax.imshow(data, cmap = cmap)
     fig.colorbar(img, ax=ax)
     ax.axvline(1500, ymin=0.5, ymax=1, color='k', ls='--', lw=0.5)
-    ax.axvline(1593, ymin=0, ymax=0.5, color='k', ls='--', lw=0.5)
+    ax.axvline(1570, ymin=0, ymax=0.5, color='k', ls='--', lw=0.5)
     ax.axvline(2077, ymin=0, ymax=0.5, color='k', ls='--', lw=0.5)
     ax.axvline(2593, ymin=0, ymax=0.5, color='k', ls='--', lw=0.5)
 
     ax.axhline(1500,  xmin=0, xmax=1, color='k', ls='--', lw=0.5)
-
-    ax.text(1550/2, 100, 'Hβ', fontsize=15, ha='center', va='center')
-    ax.text(3*3008/4, 100, 'Hα', fontsize=15, ha='center', va='center')
-    ax.text(900, 1600, '7774 + OH', fontsize=15, ha='center', va='center')
-    ax.text(1800, 1600, '6300', fontsize=15, ha='center', va='center')
-    ax.text(2300, 1600, '5577', fontsize=15, ha='center', va='center')
-    ax.text(2800, 1600, '4278', fontsize=15, ha='center', va='center')
+    
+    ax.text(1550/2, 100, 'Hβ', fontsize=15, ha='center', va='center', color=fontcolor)
+    ax.text(3*3008/4, 100, 'Hα', fontsize=15, ha='center', va='center', color=fontcolor)
+    ax.text(900, 1600, '7774 + OH', fontsize=15, ha='center', va='center', color=fontcolor)
+    ax.text(1800, 1600, '6300', fontsize=15, ha='center', va='center', color=fontcolor)
+    ax.text(2300, 1600, '5577', fontsize=15, ha='center', va='center', color=fontcolor)
+    ax.text(2800, 1600, '4278', fontsize=15, ha='center', va='center', color=fontcolor)
 
     ax.set_xticks([])
     ax.set_yticks([])
@@ -150,29 +159,37 @@ if TEST:
     dtime = datetime.fromtimestamp(tstamp).astimezone(timezone.utc)
     ax.set_title(f'{dtime:%Y-%m-%dZ%H:%M:%S}\nExposure: {exp:.2f} s', color='k', )
 
+    Path(f'plots/{date}').mkdir(parents=True, exist_ok=True)
+    fig.savefig(f'plots/{date}/{idx}_{time}.png', bbox_inches='tight')
+    plt.close(fig)
+
+
 
 #%%
 # %%
-
+date = f'{year}{month}{day}'
 with open('filelist.txt', 'w') as ofile:
     for idx, fname in tqdm(enumerate(fn), total=len(fn), desc='Generating plots'):
         data,exp,tstamp = read_raw_img(fname, pixdict)
+        time = datetime.fromtimestamp(tstamp, timezone.utc).strftime('%H%M%S')
         fig, ax = plt.subplots(1, 1, figsize=(6.4, 4.8), dpi=300, tight_layout=True, squeeze=True)
-        img = ax.imshow(data, cmap = 'Greys')
+        if minmax:
+            img = ax.imshow(data, cmap = cmap, vmin = np.nanpercentile(data, 1), vmax = np.nanpercentile(data, 99))
+        else:
+            img = ax.imshow(data, cmap = cmap)
         fig.colorbar(img, ax=ax)
         ax.axvline(1500, ymin=0.5, ymax=1, color='k', ls='--', lw=0.5)
-        ax.axvline(1593, ymin=0, ymax=0.5, color='k', ls='--', lw=0.5)
+        ax.axvline(1570, ymin=0, ymax=0.5, color='k', ls='--', lw=0.5)
         ax.axvline(2077, ymin=0, ymax=0.5, color='k', ls='--', lw=0.5)
         ax.axvline(2593, ymin=0, ymax=0.5, color='k', ls='--', lw=0.5)
 
         ax.axhline(1500,  xmin=0, xmax=1, color='k', ls='--', lw=0.5)
-
-        ax.text(1550/2, 100, 'Hβ', fontsize=15, ha='center', va='center')
-        ax.text(3*3008/4, 100, 'Hα', fontsize=15, ha='center', va='center')
-        ax.text(900, 1600, '7774 + OH', fontsize=15, ha='center', va='center')
-        ax.text(1800, 1600, '6300', fontsize=15, ha='center', va='center')
-        ax.text(2300, 1600, '5577', fontsize=15, ha='center', va='center')
-        ax.text(2800, 1600, '4278', fontsize=15, ha='center', va='center')
+        ax.text(1550/2, 100, 'Hβ', fontsize=15, ha='center', va='center', color=fontcolor)
+        ax.text(3*3008/4, 100, 'Hα', fontsize=15, ha='center', va='center', color=fontcolor)
+        ax.text(900, 1600, '7774 + OH', fontsize=15, ha='center', va='center', color=fontcolor)
+        ax.text(1800, 1600, '6300', fontsize=15, ha='center', va='center', color=fontcolor)
+        ax.text(2300, 1600, '5577', fontsize=15, ha='center', va='center', color=fontcolor)
+        ax.text(2800, 1600, '4278', fontsize=15, ha='center', va='center', color=fontcolor)
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -180,8 +197,8 @@ with open('filelist.txt', 'w') as ofile:
         dtime = datetime.fromtimestamp(tstamp).astimezone(timezone.utc)
         ax.set_title(f'{dtime:%Y-%m-%dZ%H:%M:%S}\nExposure: {exp:.2f} s', color='k', )
         
-        Path('plots').mkdir(parents=True, exist_ok=True)
-        fig.savefig(f'plots/{idx}.png', bbox_inches='tight')
+        Path(f'plots/{date}').mkdir(parents=True, exist_ok=True)
+        fig.savefig(f'plots/{date}/{idx}_{time}.png', bbox_inches='tight')
         plt.close(fig)
         
         div = 120
@@ -189,14 +206,14 @@ with open('filelist.txt', 'w') as ofile:
             exp = 1/div
         else:
             exp = exp / div
-        ofile.write(f"file 'plots/{idx}.png'\n")
+        ofile.write(f"file 'plots/{date}/{idx}_{time}.png'\n")
         ofile.write(f'duration {exp:.5f}\n')
 
 # %%
-date = fns[0].stem.split('_')[0]
-animation_name = f'hmsao_v2_{date}'
-command = f'ffmpeg -f concat -i filelist.txt -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -fps_mode vfr -pix_fmt yuv420p {animation_name}.mp4 -y'
-subprocess.run(command, shell = True)
+# date = fns[0].stem.split('_')[0]
+# animation_name = f'hmsao_v2_{date}'
+# command = f'ffmpeg -f concat -i filelist.txt -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -fps_mode vfr -pix_fmt yuv420p {animation_name}.mp4 -y'
+# subprocess.run(command, shell = True)
 
 #%%
 
