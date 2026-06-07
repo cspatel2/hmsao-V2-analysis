@@ -1,0 +1,21 @@
+{
+  "directory": "/mnt/locsststor/hmsao-v1/202502",
+  "spectrum_file": "/mnt/locsststor/ref_spectra/night_sky_combined_uves.nc",
+  "line": "5577",
+  "time_index": 0,
+  "wavelength_range": [
+    557.2511963196096,
+    558.0842237192853
+  ],
+  "za_range": [
+    -20.615156011188,
+    1.89215617996269
+  ],
+  "line_sigma": 0.5,
+  "spectrum_sigma": 2.0,
+  "wl_offset": 0.0664,
+  "wl_stretch": 1.2100000000000002,
+  "wl_pivot": 557.7350064102758,
+  "count_anchor_raw_wl": 557.6686536411064,
+  "spectrum_anchor_wl": 557.7350064102758
+}

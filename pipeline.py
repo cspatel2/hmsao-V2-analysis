@@ -40,12 +40,12 @@ def load_config():
     return config, ROOT
 #%%
 
-RUN_CALIB_L0 = False
-RUN_CALIB_L1A = False
-RUN_L1A = False
-RUN_LINEPROF_GEN = False
-RUN_CALIB = False
-RUN_L1B = False
+RUN_CALIB_L0 = True
+RUN_CALIB_L1A = True
+RUN_L1A = True
+RUN_LINEPROF_GEN = True
+RUN_CALIB = True
+RUN_L1B = True
 RUN_L1C = True
 RUN_L2 = False
 CONFIG,ROOT = load_config() #load config dict and root path
@@ -65,6 +65,7 @@ if RUN_CALIB_L0:
     #check that position identifiers in the config are found in the rootdir
     a =list(Path(subdict['rootdir']).expanduser().glob('*pos*'))
     poslist = np.unique([p.name.split('_')[0] for p in a])
+    print(poslist)
     poslist = np.unique([re.sub(r'\d+','',p) for p in poslist]) #take numberic out of string to get unique position identifier
     valid_pos = list(set(subdict['pos_identifier']) &(set(poslist)))
     if len(valid_pos) > 0:
@@ -161,7 +162,6 @@ if RUN_CALIB:
     )
     calib_gen_calibmap(calibmap_config)
 
-#%%
 if RUN_L1B:
     print("Running L1B conversion ########################################")
     subdict = CONFIG['l1b_converter']
@@ -175,7 +175,6 @@ if RUN_L1B:
     )
     l1b_main(l1b_config)
 
-#%%
 if RUN_L1C:
     print("Running L1C conversion ########################################")
     subdict = CONFIG['l1c_converter']
@@ -189,8 +188,6 @@ if RUN_L1C:
     )
     l1c_main(l1c_config)
 
-
-# %%
 if RUN_L2:
     print("Running L2 conversion ########################################")
     subdict = CONFIG['l2_converter']

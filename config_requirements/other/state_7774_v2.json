@@ -1,0 +1,21 @@
+{
+  "directory": "/mnt/locsststor/hmsao-v2/l1a",
+  "spectrum_file": "/mnt/locsststor/ref_spectra/solar_spectra_air.nc",
+  "line": "7774",
+  "time_index": 498,
+  "wavelength_range": [
+    777.287604775103,
+    785.6418769759224
+  ],
+  "za_range": [
+    -7.8068475516327815,
+    14.903864754305253
+  ],
+  "line_sigma": 2.0,
+  "spectrum_sigma": 2.0,
+  "wl_offset": 0.0309,
+  "wl_stretch": 1.005,
+  "wl_pivot": 783.2205381933096,
+  "count_anchor_raw_wl": 783.1896694100764,
+  "spectrum_anchor_wl": 783.2205381933096
+}
