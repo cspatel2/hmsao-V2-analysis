@@ -1,9 +1,9 @@
 [common] 
 #these are common values that are inputs to multiple converters. If any tables below have the value '**', then that value will be picked up from the table
-slitsizeum = 100
+slitsizeum = 200
 sourcename = 'Gamma Scientific RS-12D Series Calibration Light Source'
 dates = ['20251116']
-windows = ['7774', '5577']
+windows = ['7774']#, '5577']
 # windows = ['5577','6300','7774', '4861' ,'6563']
 model = 'config_requirements/HMSAO-V2_curve_maps.bin'
 obs_location = [67.8,20.4, 420] #lat, lon, height
@@ -12,12 +12,12 @@ wl_calib_path = 'config_requirements/wl_calib_params.json'
 
 [l1a_converter]
 rootdir = '~/locsststor/raw/hmsao-v2'
-destdir = '~/local_data/hmsao-v2/l1a'
+destdir = '~/local_data_final/hmsao-v2/l1a'
 dest_prefix = 'hmsaov2'
-overwrite = 'False'
+overwrite = 'True'
 windows = '**' #take from common or change
 dates = '**' #take from common or change
-darkdir =  '~/local_data/hmsao-v2_calibration_slit_200um_20251030'
+darkdir =  '~/local_data_final/hmsao-v2_calibration_slit_200um_20251030'
 slitsizeum = '**' #take from common
 chunksize = 100
 readnoise = 6
@@ -26,17 +26,17 @@ wl_calib_path = '**'
 
 
 [line_profile_gen]
-rootdir = '~/local_data/hmsao-v2/l1a'
-flatdir =  '~/local_data/hmsao-v2_calibration_slit_200um_20251030'
+rootdir = '~/local_data_final/hmsao-v2/l1a'
+flatdir =  '~/local_data_final/hmsao-v2_calibration_slit_200um_20251030'
 destdir = 'config_requirements/line_profiles'
-date = '20251116'
+date = '20251117'
 overwrite = 'True'
 
 # calibration config
 #step1-fits2ds
 [calib_fits2ds]
 rootdir = '~/locsststor/raw/hmsao-v2_calibration_slit_200um_20251030'
-destdir =  '~/local_data/hmsao-v2_calibration_slit_200um_20251030'
+destdir =  '~/local_data_final/hmsao-v2_calibration_slit_200um_20251030'
 overwrite = 'False'
 slitsizeum = '**'
 sourcename = '**'
@@ -44,23 +44,23 @@ pos_identifier = ['posl'] #these are the identifiers in the fits header for the 
 
 #step2-ds_1la_converter
 [calib_ds_l1a_converter]
-rootdir = '~/local_data/hmsao-v2_calibration_slit_200um_20251030/l0'
-destdir = '~/local_data/hmsao-v2_calibration_slit_200um_20251030/l1a'
+rootdir = '~/local_data_final/hmsao-v2_calibration_slit_200um_20251030/l0'
+destdir = '~/local_data_final/hmsao-v2_calibration_slit_200um_20251030/l1a'
 model = '**'
 wl_calib_path = '**'
 
 #step3-l1b_converter
 [calib_l1b_converter]
-rootdir = '~/local_data/hmsao-v2_calibration_slit_200um_20251030/l1a'
+rootdir = '~/local_data_final/hmsao-v2_calibration_slit_200um_20251030/l1a'
 destdir = ''
-flatdir = '~/local_data/hmsao-v2_calibration_slit_200um_20251030/l1a' #no flat field correction by default, can be added if needed
+flatdir = '~/local_data_final/hmsao-v2_calibration_slit_200um_20251030/l1a' #no flat field correction by default, can be added if needed
 windows = '**' # do it for all windows
 line_profile_dir = '**' #take from common or change
 
 #step4-gen-calibmap
 [calib_gen_calibmap]
-rootdir = '~/local_data/hmsao-v2_calibration_slit_200um_20251030/l1b'
-destdir = ['~/local_data/hmsao-v2_calibration_slit_200um_20251030/calib_map' ,'config_requirements/calib_map']
+rootdir = '~/local_data_final/hmsao-v2_calibration_slit_200um_20251030/l1b'
+destdir = ['~/local_data_final/hmsao-v2_calibration_slit_200um_20251030/calib_map' ,'config_requirements/calib_map']
 windows = '**' # do it for all windows 
 calib_params_csv = 'config_requirements/l1bc_calib/calib_params_hmsao_slit_200um.csv'
 calib_curve_ds_path = 'config_requirements/l1bc_calib/D300 HL2372 2025-09-11.nc'
@@ -69,16 +69,16 @@ sourcename = '**'
 
 #L1B
 [l1b_converter]
-rootdir = '~/local_data/hmsao-v2/l1a'
-destdir = '~/local_data/hmsao-v2/l1b'
+rootdir = '~/local_data_final/hmsao-v2/l1a'
+destdir = '~/local_data_final/hmsao-v2/l1b'
 windows = '**' #take from common or change
 dates = '**' #take from common or change
-flatdir =  '~/local_data/hmsao-v2_calibration_slit_200um_20251030'
+flatdir =  '~/local_data_final/hmsao-v2_calibration_slit_200um_20251030'
 line_profile_dir = '**' #take from common or change
 
 #L1C
 [l1c_converter]
-rootdir = '~/local_data/hmsao-v2/l1b'
+rootdir = '~/local_data_final/hmsao-v2/l1b'
 destdir = ''
 windows = '**'
 calibmap_dir = 'config_requirements/calib_map'
@@ -86,8 +86,8 @@ photon = 'True'
 
 #L2
 [l2_converter]
-rootdir = '~/local_data/hmsao-v2/l1c'
-destdir = '~/local_data/hmsao-v2/l2'
+rootdir = '~/local_data_final/hmsao-v2/l1c'
+destdir = '~/local_data_final/hmsao-v2/l2'
 dest_prefix = 'hmsao-v2'
 overwrite = 'False'
 zabinsize = 0.25

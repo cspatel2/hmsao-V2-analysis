@@ -3,7 +3,6 @@
     "python.REPL.enableREPLSmartSend": false,
     "python-envs.defaultEnvManager": "ms-python.python:conda",
     "python-envs.defaultPackageManager": "ms-python.python:conda",
-    "python-envs.pythonProjects": [],
     "python.analysis.extraPaths": [
         "./l1b_converter"
     ]

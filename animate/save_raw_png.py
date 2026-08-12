@@ -8,7 +8,9 @@ from datetime import datetime, timezone
 # %%
 p = Path('~/locsststor/raw/hmsao-V2').expanduser()
 date = '20251116'
-fns = list(p.glob(f'*{date}*/*.fits'))
+time = '2257'
+fns = list(p.glob(f'*{date}*/*{time}*.fits'))
+fns.sort()
 # %%
 fn = fns[0]
 with fits.open(fn) as hdul:

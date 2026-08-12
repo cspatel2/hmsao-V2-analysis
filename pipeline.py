@@ -6,12 +6,14 @@ from multiprocessing.pool import RUN
 from os import path
 from pickle import TRUE
 from re import sub
+from tkinter import FALSE
 import tomllib
 import re
 import numpy as np
 import os
 from pathlib import Path
 from pyparsing import line
+from sympy import false
 import xarray as xr
 #%%
 
@@ -40,7 +42,7 @@ def load_config():
     return config, ROOT
 #%%
 
-RUN_CALIB_L0 = True
+RUN_CALIB_L0 = False
 RUN_CALIB_L1A = True
 RUN_L1A = True
 RUN_LINEPROF_GEN = True
