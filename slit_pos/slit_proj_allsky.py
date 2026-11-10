@@ -1,110 +1,120 @@
 #%%
-import matplotlib.pyplot as plt
-import numpy as np
-from PIL import Image
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
 from pathlib import Path
 
-def plot_slit_on_allsky_efficient(allskyimg_path, save_path='./', azimuth_deg=0, 
-                                  slit_fov_deg=20, slit_width_deg=0.01, 
-                                  plot_show=False, ax=None):
+import numpy as np
+from PIL import Image, ImageDraw
+
+try:
+    BASE_DIR = Path(__file__).resolve().parent
+except NameError:  # interactive (#%%) session
+    BASE_DIR = Path.cwd()
+
+RAW_DIR = BASE_DIR / 'plots' / 'raw'
+OUT_DIR = BASE_DIR / 'plots' / 'slit_proj'
+IMG_EXTS = ('.jpeg', '.jpg', '.png')
+
+# Output naming convention. Available fields: stem (input filename without
+# extension), az (azimuth, deg), fov (slit FOV, deg).
+# e.g. 2025-11-16T22.58.00.000KRN_slit_az180_fov30.png
+NAME_TEMPLATE = '{stem}_slit_az{az:03g}_fov{fov:02g}.png'
+
+
+def output_name(image_path, azimuth_deg, slit_fov_deg, template=NAME_TEMPLATE):
+    return template.format(stem=Path(image_path).stem,
+                           az=azimuth_deg, fov=slit_fov_deg)
+
+
+def slit_endpoints(w, h, azimuth_deg, slit_fov_deg, x_offset_px=0, y_offset_px=0):
+    """Pixel endpoints of the slit (a straight line through the slit center).
+
+    Assumes an equidistant fisheye with 180 deg FOV spanning the image width,
+    so pixel radius r = theta * (w / pi).
+    The slit center is the image center shifted by (x_offset_px, y_offset_px),
+    in image pixel coordinates: +x = right, +y = down.
     """
-    Highly optimized function to plot a slit position on an all-sky image.
-    Accepts an optional 'ax' argument to prevent destroying/recreating figures in loops.
+    cx, cy = w / 2 + x_offset_px, h / 2 + y_offset_px
+    r = np.radians(slit_fov_deg / 2) * (w / np.pi)
+    az = np.radians(azimuth_deg)
+    dx, dy = r * np.sin(az), -r * np.cos(az)
+    return (cx - dx, cy - dy), (cx + dx, cy + dy)
+
+
+def plot_slit_on_allsky_efficient(allskyimg_path, save_path=OUT_DIR, azimuth_deg=90,
+                                  slit_fov_deg=20, x_offset_px=0, y_offset_px=0,
+                                  linewidth_px=2, color='red',
+                                  plot_show=False, compress_level=1,
+                                  name_template=NAME_TEMPLATE, overwrite=True):
+    """Draw the slit position on an all-sky image and save it as PNG.
+
+    Draws directly onto the image with PIL (no matplotlib figure), so the
+    output keeps the original resolution and is much faster to produce.
+    x_offset_px, y_offset_px: shift of the slit center from the image center,
+    in pixels (+x = right, +y = down).
+    compress_level: PNG zlib level 0-9 (1 = fast, slightly larger files).
+    overwrite=False skips images whose output file already exists.
+    Returns the output path.
     """
-    DPI = 300
     image_path = Path(allskyimg_path)
-    
-    # 1. Load image and metadata
-    img = Image.open(image_path)
+    fn_out = Path(save_path) / output_name(image_path, azimuth_deg,
+                                           slit_fov_deg, name_template)
+    if fn_out.exists() and not overwrite and not plot_show:
+        return fn_out
+
+    with Image.open(image_path) as im:
+        img = im.convert('RGB')
     w, h = img.size
-    img_center_x, img_center_y = w // 2, h // 2
 
-    #2. math
-    slit_length_rad = np.radians(slit_fov_deg / 2)
-    azimuth_rad = np.radians(azimuth_deg)
-    
-    # Pre-calculate angular steps (-fov/2 to +fov/2)
-    theta_vals = np.linspace(-slit_length_rad, slit_length_rad, 100)
-    
-    # Convert theta directly to pixel radii (assuming 180 deg full FOV)
-    # Equivalent to: (theta / (np.radians(180) / 2)) * (w / 2)
-    r = theta_vals * (w / np.pi) 
-    
-    # Vectorized conversion to X and Y coordinates
-    slit_x = img_center_x + r * np.sin(azimuth_rad)
-    slit_y = img_center_y - r * np.cos(azimuth_rad)
+    p0, p1 = slit_endpoints(w, h, azimuth_deg, slit_fov_deg,
+                            x_offset_px, y_offset_px)
+    ImageDraw.Draw(img).line([p0, p1], fill=color, width=linewidth_px)
 
-    # 3. Figure Management (Reuse axis if provided, else create standalone)
-    standalone = ax is None
-    if standalone:
-        fig, ax = plt.subplots(figsize=(w / DPI, h / DPI))
-    else:
-        fig = ax.get_figure()
-
-    # 4. Drawing and Formatting
-    ax.imshow(img)
-    ax.plot(slit_x, slit_y, color='red', linewidth=2, markersize=0.5)
-    
-    ax.set_aspect('equal')
-    ax.set_xlim(0, w)
-    ax.set_ylim(h, 0)
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-    # 5. Exporting
-    fn_out = Path(save_path) / f"{image_path.stem}_slit.png"
     fn_out.parent.mkdir(parents=True, exist_ok=True)
-    
-    # bbox_inches='tight' is slow but can be kept if necessary; 
-    # pad_inches=0 enforces exact dimensions cleanly
-    plt.savefig(fn_out, dpi=DPI, bbox_inches='tight', pad_inches=0)
+    img.save(fn_out, compress_level=compress_level)
 
     if plot_show:
+        import matplotlib.pyplot as plt
+        _, ax = plt.subplots(figsize=(8, 8))
+        ax.imshow(img)
+        ax.set_axis_off()
         plt.show()
-    elif standalone:
-        plt.close(fig)
+
+    return fn_out
+
+
+def plot_slit_batch(fnames, save_path=OUT_DIR, max_workers=None, **kwargs):
+    """Process many images in parallel. kwargs go to plot_slit_on_allsky_efficient."""
+    func = partial(plot_slit_on_allsky_efficient, save_path=save_path,
+                   plot_show=False, **kwargs)
+    with ProcessPoolExecutor(max_workers=max_workers) as ex:
+        return list(ex.map(func, fnames, chunksize=4))
+
+
+def run_all(raw_dir=RAW_DIR, out_dir=OUT_DIR, **kwargs):
+    """Draw the slit on every image in raw_dir and save to out_dir."""
+    fnames = sorted(p for p in Path(raw_dir).iterdir()
+                    if p.suffix.lower() in IMG_EXTS)
+    if not fnames:
+        print(f'No images found in {raw_dir}')
+        return []
+    out = plot_slit_batch(fnames, out_dir, **kwargs)
+    print(f'Saved {len(out)} images to {out_dir}')
+    return out
+
 
 # %%
 if __name__ == '__main__':
-    # Single image demonstration
-    # fn = '2025-11-16T22.57.00.000KRN.jpeg'
-    fn = '2025-11-16T22.58.00.000KRN.jpeg'
-    pointing_az = 90
+    pointing_az = 180
     slit_fov = 30
-    
-    # Creating a dummy file for local script integrity if needed
-    if not Path(fn).exists():
-        Image.new('RGB', (1200, 1200), color='gray').save(fn)
-        
-    plot_slit_on_allsky_efficient(fn, azimuth_deg=pointing_az, slit_fov_deg=slit_fov, plot_show=True)
+    x_offset = 0  # px, +right
+    y_offset = 20  # px, +down
 
-    # =========================================================================
-    # HIGH-SPEED BATCH LOOP EXAMPLE
-    # =========================================================================
-    # UNCOMMENT THIS SECTION to run your bulk files up to 5x-10x faster:
-    
-    # from glob import glob
-    # from tqdm import tqdm
-    # fnames = sorted(glob('imgs/raw/*.jpeg'))
-    
-    # if fnames:
-    #     # 1. Open the image *once* ahead of time to capture dimensions for the figure
-    #     first_img = Image.open(fnames[0])
-    #     w, h = first_img.size
-        
-    #     # 2. Build one universal figure and axis blueprint
-    #     fig, ax = plt.subplots(figsize=(w / 300, h / 300))
-    #     plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-        
-    #     # 3. Fast loop
-    #     for img_path in tqdm(fnames):
-    #         ax.clear() # Wipe the canvas clean without deleting the window structural data
-    #         plot_slit_on_allsky_efficient(
-    #             img_path, 
-    #             save_path='imgs/with_slit', 
-    #             azimuth_deg=pointing_az, 
-    #             slit_fov_deg=slit_fov, 
-    #             ax=ax # Reuses the canvas structure
-    #         )
-    #     plt.close(fig)
+    run_all(azimuth_deg=pointing_az, slit_fov_deg=slit_fov,
+            x_offset_px=x_offset, y_offset_px=y_offset)
+
+    # Single image with preview:
+    # plot_slit_on_allsky_efficient(RAW_DIR / '2025-11-16T22.58.00.000KRN.jpeg',
+    #                               azimuth_deg=pointing_az,
+    #                               slit_fov_deg=slit_fov, plot_show=True)
 # %%
